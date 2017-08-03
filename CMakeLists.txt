@@ -8,7 +8,7 @@ project(libsylverant)
 set (libsylverant_VERSION_MAJOR 1)
 set (libsylverant_VERSION_MINOR 0)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 find_package(LibXml2)
 find_package(MYSQL)
