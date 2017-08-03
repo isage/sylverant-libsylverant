@@ -155,36 +155,30 @@ static const uint32_t bbtable[1024] = {
 void CRYPT_BB_Decrypt(CRYPT_SETUP *pcry, void *vdata, uint32_t length)
 {
     unsigned char *data = (unsigned char *)vdata;
-    uint32_t eax, ecx, edx, ebx, ebp, esi, edi, tmp;
 
-    edx = 0;
-    ecx = 0;
-    eax = 0;
-    while (edx < length)
+    uint32_t xl, xr;
+    uint32_t index = 0;
+
+    while (index < length)
     {
-        ebx = *(uint32_t *) &data[edx];
-        ebx = LE32(ebx);
-        ebx = ebx ^ pcry->keys[5];
-        ebp = ((pcry->keys[(ebx >> 0x18) + 0x12]+pcry->keys[((ebx >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebx >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebx & 0xff) + 0x312];
-        ebp = ebp ^ pcry->keys[4];
-        tmp = *(uint32_t *) &data[edx+4];
-        ebp ^= LE32(tmp);
-        edi = ((pcry->keys[(ebp >> 0x18) + 0x12]+pcry->keys[((ebp >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebp >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebp & 0xff) + 0x312];
-        edi = edi ^ pcry->keys[3];
-        ebx = ebx ^ edi;
-        esi = ((pcry->keys[(ebx >> 0x18) + 0x12]+pcry->keys[((ebx >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebx >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebx & 0xff) + 0x312];
-        ebp = ebp ^ esi ^ pcry->keys[2];
-        edi = ((pcry->keys[(ebp >> 0x18) + 0x12]+pcry->keys[((ebp >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebp >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebp & 0xff) + 0x312];
-        edi = edi ^ pcry->keys[1];
-        ebp = ebp ^ pcry->keys[0];
-        ebx = ebx ^ edi;
-        *(uint32_t *) &data[edx] = LE32(ebp);
-        *(uint32_t *) &data[edx+4] = LE32(ebx);
-        edx = edx+8;
+        xl = LE32(*(uint32_t *) &data[index]);
+        xr = LE32(*(uint32_t *) &data[index+4]);
+
+        xl ^= pcry->keys[5];
+
+        xr ^= (((pcry->keys[(xl >> 24) + 18]+pcry->keys[((xl >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xl >> 8)& 0xff) + 512+18]) + pcry->keys[(xl & 0xff) + 768+18]) ^ pcry->keys[4];
+
+        xl ^= (((pcry->keys[(xr >> 24) + 18]+pcry->keys[((xr >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xr >> 8)& 0xff) + 512+18]) + pcry->keys[(xr & 0xff) + 768+18]) ^ pcry->keys[3];
+
+        xr ^= (((pcry->keys[(xl >> 24) + 18]+pcry->keys[((xl >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xl >> 8)& 0xff) + 512+18]) + pcry->keys[(xl & 0xff) + 768+18]) ^ pcry->keys[2];
+
+        xl ^= (((pcry->keys[(xr >> 24) + 18]+pcry->keys[((xr >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xr >> 8)& 0xff) + 512+18]) + pcry->keys[(xr & 0xff) + 768+18]) ^ pcry->keys[1];
+
+        xr ^= pcry->keys[0];
+
+        *(uint32_t *) &data[index] = LE32(xr);
+        *(uint32_t *) &data[index+4] = LE32(xl);
+        index = index+8;
     }
 }
 
@@ -192,36 +186,31 @@ void CRYPT_BB_Decrypt(CRYPT_SETUP *pcry, void *vdata, uint32_t length)
 void CRYPT_BB_Encrypt(CRYPT_SETUP *pcry, void *vdata, uint32_t length)
 {
     unsigned char *data = (unsigned char *)vdata;
-    uint32_t eax, ecx, edx, ebx, ebp, esi, edi, tmp;
+    uint32_t xl, xr;
+    uint32_t index = 0;
 
-    edx = 0;
-    ecx = 0;
-    eax = 0;
-    while (edx < length)
+    index = 0;
+
+    while (index < length)
     {
-        ebx = *(uint32_t *) &data[edx];
-        ebx = LE32(ebx);
-        ebx = ebx ^ pcry->keys[0];
-        ebp = ((pcry->keys[(ebx >> 0x18) + 0x12]+pcry->keys[((ebx >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebx >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebx & 0xff) + 0x312];
-        ebp = ebp ^ pcry->keys[1];
-        tmp = *(uint32_t *) &data[edx+4];
-        ebp ^= LE32(tmp);
-        edi = ((pcry->keys[(ebp >> 0x18) + 0x12]+pcry->keys[((ebp >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebp >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebp & 0xff) + 0x312];
-        edi = edi ^ pcry->keys[2];
-        ebx = ebx ^ edi;
-        esi = ((pcry->keys[(ebx >> 0x18) + 0x12]+pcry->keys[((ebx >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebx >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebx & 0xff) + 0x312];
-        ebp = ebp ^ esi ^ pcry->keys[3];
-        edi = ((pcry->keys[(ebp >> 0x18) + 0x12]+pcry->keys[((ebp >> 0x10)& 0xff) + 0x112])
-               ^ pcry->keys[((ebp >> 0x8)& 0xff) + 0x212]) + pcry->keys[(ebp & 0xff) + 0x312];
-        edi = edi ^ pcry->keys[4];
-        ebp = ebp ^ pcry->keys[5];
-        ebx = ebx ^ edi;
-        *(uint32_t *) &data[edx] = LE32(ebp);
-        *(uint32_t *) &data[edx+4] = LE32(ebx);
-        edx = edx+8;
+        xl = LE32(*(uint32_t *) &data[index]);
+        xr = LE32(*(uint32_t *) &data[index+4]);
+
+        xl ^= pcry->keys[0];
+
+        xr ^= (((pcry->keys[(xl >> 24) + 18]+pcry->keys[((xl >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xl >> 8)& 0xff) + 512+18]) + pcry->keys[(xl & 0xff) + 768+18]) ^ pcry->keys[1];
+
+        xl ^= (((pcry->keys[(xr >> 24) + 18]+pcry->keys[((xr >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xr >> 8)& 0xff) + 512+18]) + pcry->keys[(xr & 0xff) + 768+18]) ^ pcry->keys[2];
+
+        xr ^= (((pcry->keys[(xl >> 24) + 18]+pcry->keys[((xl >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xl >> 8)& 0xff) + 512+18]) + pcry->keys[(xl & 0xff) + 768+18]) ^ pcry->keys[3];
+
+        xl ^= (((pcry->keys[(xr >> 24) + 18]+pcry->keys[((xr >> 16)& 0xff) + 256+18]) ^ pcry->keys[((xr >> 8)& 0xff) + 512+18]) + pcry->keys[(xr & 0xff) + 768+18]) ^ pcry->keys[4];
+
+        xr ^= pcry->keys[5];
+
+        *(uint32_t *) &data[index] = LE32(xr);
+        *(uint32_t *) &data[index+4] = LE32(xl);
+        index = index+8;
     }
 }
 
@@ -293,11 +282,9 @@ void CRYPT_BB_CreateKeys(CRYPT_SETUP *pcry, void *salt)
         ebx++;
     }
 
-    ebp=0;
     esi=0;
     ecx=0;
     edi=0;
-    ebx=0;
     edx=0x48;
 
     while (edi < edx)
@@ -374,8 +361,6 @@ void CRYPT_BB_CreateKeys(CRYPT_SETUP *pcry, void *salt)
     }
 
 
-    eax=0;
-    edx=0;
     ou=0;
     while (ou < 0x1000)
     {
