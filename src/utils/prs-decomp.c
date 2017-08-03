@@ -212,7 +212,8 @@ static int offset_copy(struct prs_dec_cxt *cxt, int offset) {
         return -ENOSPC;
 
     /* Copy the byte and increment all the counters/pointers. */
-    *cxt->dst++ = *(cxt->dst + offset);
+    cxt->dst++;
+    *cxt->dst = *(cxt->dst + offset);
     ++cxt->dst_pos;
 
     return 0;
@@ -554,7 +555,7 @@ int prs_decompress_file(const char *fn, uint8_t **dst) {
     }
 
     /* Do the decompression. */
-    if((rv = do_decompress(&cxt)) < 0) {
+    if((rv = do_decompress(&cxt)) <= 0) {
         free(cxt.dst);
         fclose(fp);
         return rv;

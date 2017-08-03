@@ -355,7 +355,6 @@ static int handle_max(xmlNode *n, int *max, int *min) {
 }
 
 static int handle_weapon(xmlNode *n, sylverant_weapon_t *w) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -397,7 +396,6 @@ static int handle_weapon(xmlNode *n, sylverant_weapon_t *w) {
 }
 
 static int handle_frame(xmlNode *n, sylverant_frame_t *f) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -439,7 +437,6 @@ static int handle_frame(xmlNode *n, sylverant_frame_t *f) {
 }
 
 static int handle_barrier(xmlNode *n, sylverant_barrier_t *b) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -476,7 +473,6 @@ static int handle_barrier(xmlNode *n, sylverant_barrier_t *b) {
 }
 
 static int handle_unit(xmlNode *n, sylverant_unit_t *u) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -508,7 +504,6 @@ static int handle_unit(xmlNode *n, sylverant_unit_t *u) {
 }
 
 static int handle_mag(xmlNode *n, sylverant_mag_t *m) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -581,7 +576,6 @@ static int handle_mag(xmlNode *n, sylverant_mag_t *m) {
 }
 
 static int handle_tool(xmlNode *n, sylverant_tool_t *t) {
-    int rv = 0;
 
     /* Look at the node's children... */
     n = n->children;
@@ -854,7 +848,7 @@ int sylverant_read_limits(const char *f, sylverant_limits_t **l) {
 
     /* Allocate space for the base of the list. */
     rv = (sylverant_limits_t *)ref_alloc(sizeof(sylverant_limits_t),
-                                         &sylverant_real_free_limits);
+                                         (void (*)(void *))&sylverant_real_free_limits);
 
     if(!rv) {
         debug(DBG_ERROR, "Cannot make space for items list\n");
@@ -1070,7 +1064,6 @@ static void clean_list(struct sylverant_item_queue *q) {
 }
 
 static int sylverant_real_free_limits(sylverant_limits_t *l) {
-    sylverant_item_t *i, *tmp;
 
     /* Don't crash if the list is NULL. This is why we can return an error,
        after all. */
@@ -1112,7 +1105,7 @@ static int check_weapon(sylverant_limits_t *l, sylverant_iitem_t *i,
                         uint32_t version, uint32_t ic) {
     sylverant_item_t *j;
     sylverant_weapon_t *w;
-    int is_srank = 0, is_named_srank = 0;
+    int is_named_srank = 0;
     uint8_t tmp;
     int is_special_weapon = i->data_b[4] == 0x80;
     int is_wrapped = 0;
@@ -1138,7 +1131,6 @@ static int check_weapon(sylverant_limits_t *l, sylverant_iitem_t *i,
     /* Figure out if we're looking at a S-Rank or not */
     if((ic2 >= 0x7000 && ic2 <= 0x8800) ||
        (ic2 >= 0xA500 && ic2 <= 0xA900)) {
-        is_srank = 1;
 
         /* If we're looking at a S-Rank, figure out if it has a name */
         if(i->data_b[6] >= 0x0C) {

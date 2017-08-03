@@ -338,7 +338,6 @@ int prs_compress(const uint8_t *src, uint8_t **dst, size_t src_len) {
     int rv, mlen, mlen2;
     uint8_t tmp;
     int offset, offset2;
-    int lazy_offs = 0;
 
     /* Check the input to make sure we've got valid source/destination pointers
        and something to do. */

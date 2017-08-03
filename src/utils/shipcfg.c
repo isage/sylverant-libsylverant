@@ -753,7 +753,6 @@ err:
 
 static int handle_events(xmlNode *n, sylverant_ship_t *cur) {
     int rv;
-    unsigned long rv2;
     xmlNode *n2;
 
     /* Make sure we don't already have an event setup done... */
