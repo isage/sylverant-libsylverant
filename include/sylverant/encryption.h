@@ -97,4 +97,8 @@ int CRYPT_CryptData(CRYPT_SETUP* cs, void* data, unsigned long size,
  */
 void CRYPT_PrintData(void* ds,unsigned long data_size);
 
+void CRYPT_PC_DEBUG_PrintKeys(CRYPT_SETUP* cs,char* title);
+void CRYPT_GC_DEBUG_PrintKeys(CRYPT_SETUP* cs,char* title);
+void CRYPT_BB_DEBUG_PrintKeys(CRYPT_SETUP* cs,char* title);
+
 #endif /* !SYLVERANT__ENCRYPTION_H */
