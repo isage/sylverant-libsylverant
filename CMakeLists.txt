@@ -39,7 +39,7 @@ if(DEBUG)
 endif(DEBUG)
 
 add_definitions("-Wall")
-add_library(sylverant SHARED ${SOURCES})
+add_library(sylverant STATIC ${SOURCES})
 target_link_libraries(sylverant ${LIBXML2_LIBRARIES} ${MYSQL_LIBRARIES})
 
 
