@@ -12,52 +12,30 @@
 
 void CRYPT_PC_MixKeys(CRYPT_SETUP* pc)
 {
-    uint32_t esi,edi,eax,ebp,edx;
-    edi = 1;
-    edx = 0x18;
-    eax = edi;
-    while (edx > 0)
+    uint32_t index;
+
+    for (index = 1; index < 0x19+0x1F; index++)
     {
-        esi = pc->keys[eax + 0x1F];
-        ebp = pc->keys[eax];
-        ebp = ebp - esi;
-        pc->keys[eax] = ebp;
-        eax++;
-        edx--;
-    }
-    edi = 0x19;
-    edx = 0x1F;
-    eax = edi;
-    while (edx > 0)
-    {
-        esi = pc->keys[eax - 0x18];
-        ebp = pc->keys[eax];
-        ebp = ebp - esi;
-        pc->keys[eax] = ebp;
-        eax++;
-        edx--;
+        pc->keys[index] = pc->keys[index] - pc->keys[index + ((index<=0x18) ? 0x1F : -0x18)];
     }
 }
 
-void CRYPT_PC_CreateKeys(CRYPT_SETUP* pc, uint32_t val)
+void CRYPT_PC_CreateKeys(CRYPT_SETUP* pc, uint32_t key)
 {
-    uint32_t esi,ebx,edi,eax,edx,var1;
-    esi = 1;
-    ebx = val;
-    edi = 0x15;
-    pc->keys[56] = ebx;
-    pc->keys[55] = ebx;
-    while (edi <= 0x46E)
+    uint32_t x = 1;
+
+    pc->keys[56] = key;
+    pc->keys[55] = key;
+
+    for (unsigned index = 0x15; index <= 0x46E; index+=0x15)
     {
-        eax = edi;
-        var1 = eax / 55;
-        edx = eax - (var1 * 55);
-        ebx = ebx - esi;
-        edi = edi + 0x15;
-        pc->keys[edx] = esi;
-        esi = ebx;
-        ebx = pc->keys[edx];
+        uint32_t j = index % 55;
+        key -= x;
+        pc->keys[j] = x;
+        x = key;
+        key = pc->keys[j];
     }
+
     CRYPT_PC_MixKeys(pc);
     CRYPT_PC_MixKeys(pc);
     CRYPT_PC_MixKeys(pc);
@@ -66,7 +44,7 @@ void CRYPT_PC_CreateKeys(CRYPT_SETUP* pc, uint32_t val)
 }
 
 static uint32_t CRYPT_PC_GetNextKey(CRYPT_SETUP* pc)
-{    
+{
     uint32_t re;
     if (pc->pc_posn == 56)
     {
